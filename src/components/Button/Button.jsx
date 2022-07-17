@@ -1,18 +1,17 @@
-import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { BiPlusMedical } from 'react-icons/bi';
 import LoadMoreButton from './Button.style';
 
-export class Button extends Component {
-  static propTypes = { onClick: PropTypes.func.isRequired };
+export const Button = ({ onClick }) => {
+  return (
+    <LoadMoreButton type="button" onClick={onClick}>
+      Load more <BiPlusMedical />
+    </LoadMoreButton>
+  );
+};
 
-  render() {
-    return (
-      <LoadMoreButton type="button" onClick={this.props.onClick}>
-        Load more <BiPlusMedical />
-      </LoadMoreButton>
-    );
-  }
-}
+LoadMoreButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+};
 
 export default Button;

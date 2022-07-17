@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from './components/Searchbar/Searchbar';
@@ -15,116 +15,91 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-export class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    totalHits: null,
-    hits: [],
-    status: Status.IDLE,
-    error: null,
-    loading: false,
-    showModal: false,
-  };
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState(Status.IDLE);
+  const [images, setImages] = useState([]);
+  const [totalHits, setTotalHits] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [imageData, setImageData] = useState({ url: null, alt: '' });
 
-  async componentDidUpdate(prevProps, prevState) {
-    const { query, page } = this.state;
-    const { query: prevQuery, page: prevPage } = prevState;
-    if (
-      (prevQuery.trim() !== query.trim() && query.trim().length > 0) ||
-      page > prevPage
-    ) {
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
+    (async () => {
+      setStatus(Status.PENDING);
       API.searchParams.q = query;
       API.searchParams.page = page;
-      this.setState({ status: Status.PENDING });
       try {
         const { totalHits, hits } = await API.getImages(API.searchParams);
-        if (totalHits || hits.length) {
-          if (page === 1) {
-            toast.success(`We found ${totalHits} pictures for you!`);
-          }
-          if (page >= 1) {
-            this.setState(prevState => ({
-              totalHits: totalHits,
-              hits: prevState.hits ? [...prevState.hits, ...hits] : hits,
-              status: Status.RESOLVED,
-            }));
-          }
+        if (page === 1) {
+          toast.success(`We found ${totalHits} pictures for you!`);
+        }
+        if (totalHits) {
+          setImages(images => [...images, ...hits]);
+          setTotalHits(totalHits);
+          setStatus(Status.RESOLVED);
         } else {
-          this.setState({
-            totalHits: null,
-            hits: [],
-            status: Status.REJECTED,
-          });
+          setImages([]);
+          setTotalHits(0);
+          setStatus(Status.REJECTED);
+          toast.error('Sorry, no images for your request.');
         }
       } catch (error) {
-        this.setState({
-          totalHits: null,
-          hits: [],
-          status: Status.REJECTED,
-          error,
-        });
+        setImages([]);
+        setTotalHits(0);
+        setStatus(Status.REJECTED);
         toast.error(`${error}`);
       }
-    }
-    if (prevState.hits !== this.state.hits) {
-      window.scrollBy({
-        top: document.body.scrollHeight,
-        behavior: 'smooth',
-      });
-    }
-  }
+    })();
+  }, [query, page]);
 
-  handleFormSearch = query => {
-    if (query === '') {
-      this.setState({
-        query: '',
-        totalHits: null,
-        hits: [],
-        status: Status.REJECTED,
-        loading: false,
-      });
+  useEffect(() => {
+    window.scrollBy({
+      top: document.body.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, [images]);
+
+  const handleFormSearch = query => {
+    if (!query) {
+      setImages([]);
+      setStatus(Status.REJECTED);
+      setTotalHits(0);
       toast.warning('Please enter your request!');
     }
-    this.setState({
-      query,
-      page: 1,
-      totalHits: null,
-      hits: [],
-    });
+    setQuery(query);
+    setPage(1);
+    setTotalHits(0);
+    setImages([]);
   };
 
-  handleClickLoadMore = () => this.setState(({ page }) => ({ page: page + 1 }));
+  const handleClickLoadMore = () => setPage(page => page + 1);
 
-  handleToggleModal = e => {
-    this.setState(({ showModal }) => ({ showModal: !showModal }));
-    if (!this.state.showModal) {
-      this.setState({
-        largeImageURL: e.target.dataset.source,
-        tags: e.target.alt,
-      });
+  const handleToggleModal = e => {
+    setShowModal(prevState => !showModal);
+    if (!showModal) {
+      setImageData({ url: e.target.dataset.source, alt: e.target.alt });
     }
   };
-
-  render() {
-    const { hits, showModal, largeImageURL, tags, status } = this.state;
-    return (
-      <>
-        <Searchbar onSearch={this.handleFormSearch} />
-        <ToastContainer autoClose={3000} />
-        {status === 'pending' && <Loader />}
-        {hits.length !== 0 && (
-          <ImageGallery images={hits} onClick={this.handleToggleModal} />
-        )}
-        {hits.length >= API.searchParams.per_page && (
-          <Button onClick={this.handleClickLoadMore} />
-        )}
-        {showModal && (
-          <Modal onClose={this.handleToggleModal}>
-            <img src={largeImageURL} alt={tags} />
-          </Modal>
-        )}
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <Searchbar onSearch={handleFormSearch} totalHits={totalHits} />
+      <ToastContainer autoClose={3000} />
+      {status === 'pending' && <Loader />}
+      {images.length !== 0 && (
+        <ImageGallery images={images} onClick={handleToggleModal} />
+      )}
+      {images.length >= API.searchParams.per_page && (
+        <Button onClick={handleClickLoadMore} />
+      )}
+      {showModal && (
+        <Modal onClose={handleToggleModal}>
+          <img src={imageData.url} alt={imageData.alt} />
+        </Modal>
+      )}
+    </>
+  );
+};
