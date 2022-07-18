@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FaSearch } from 'react-icons/fa';
 import { Header, Form, SearchbarButton, Input } from './Searchbar.style.js';
 
-export const Searchbar = ({ onSearch, onChange, totalHits }) => {
+export const Searchbar = ({ onSearch, totalHits }) => {
   const [query, setQuery] = useState('');
 
   const handleChange = e => setQuery(e.currentTarget.value.toLowerCase());
