@@ -19,10 +19,6 @@ export const App = () => {
   const [searchParams, setSearchParams] = useState({
     q: '',
     page: 1,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    per_page: 12,
   });
 
   const [status, setStatus] = useState(Status.IDLE);

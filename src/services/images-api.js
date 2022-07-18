@@ -8,6 +8,10 @@ const customAxios = axios.create({
   baseURL: BASE_URL,
   params: {
     key: API_KEY,
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    per_page: 12,
   },
 });
 

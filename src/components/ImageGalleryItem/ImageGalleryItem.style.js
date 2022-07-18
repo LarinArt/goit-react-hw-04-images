@@ -21,9 +21,9 @@ export const Item = styled.li`
     transform: scale(1.02);
   }
 
-  &:last-child {
+  /* &:last-child {
     margin-bottom: 0;
-  }
+  } */
 `;
 
 export const Img = styled.img`
