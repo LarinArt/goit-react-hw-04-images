@@ -33,7 +33,7 @@ export const App = () => {
   const [imageData, setImageData] = useState({ url: null, alt: '' });
 
   useEffect(() => {
-    if (!searchParams({ query: '' })) {
+    if (searchParams.query !== '') {
       return;
     }
     (async () => {
