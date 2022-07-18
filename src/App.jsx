@@ -16,8 +16,16 @@ const Status = {
 };
 
 export const App = () => {
-  const [query, setQuery] = useState('');
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useState({
+    query: '',
+    page: 1,
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    per_page: 12,
+  });
+  // const [query, setQuery] = useState('');
+  // const [page, setPage] = useState(1);
   const [status, setStatus] = useState(Status.IDLE);
   const [images, setImages] = useState([]);
   const [totalHits, setTotalHits] = useState(0);
@@ -25,16 +33,16 @@ export const App = () => {
   const [imageData, setImageData] = useState({ url: null, alt: '' });
 
   useEffect(() => {
-    if (!query) {
+    if (!searchParams({ query: '' })) {
       return;
     }
     (async () => {
       setStatus(Status.PENDING);
-      API.searchParams.q = query;
-      API.searchParams.page = page;
+      // API.searchParams.q = query;
+      // API.searchParams.page = page;
       try {
-        const { totalHits, hits } = await API.getImages(API.searchParams);
-        if (page === 1) {
+        const { totalHits, hits } = await API.getImages(searchParams);
+        if (searchParams({ page: 1 })) {
           toast.success(`We found ${totalHits} pictures for you!`);
         }
         if (totalHits) {
@@ -54,7 +62,7 @@ export const App = () => {
         toast.error(`${error}`);
       }
     })();
-  }, [query, page]);
+  }, [searchParams]);
 
   useEffect(() => {
     window.scrollBy({
@@ -70,13 +78,12 @@ export const App = () => {
       setTotalHits(0);
       toast.warning('Please enter your request!');
     }
-    setQuery(query);
-    setPage(1);
+    setSearchParams({ query, page: 1 });
     setTotalHits(0);
     setImages([]);
   };
 
-  const handleClickLoadMore = () => setPage(page => page + 1);
+  const handleClickLoadMore = () => setSearchParams(page => page + 1);
 
   const handleToggleModal = e => {
     setShowModal(prevState => !showModal);
@@ -92,7 +99,7 @@ export const App = () => {
       {images.length !== 0 && (
         <ImageGallery images={images} onClick={handleToggleModal} />
       )}
-      {images.length >= API.searchParams.per_page && (
+      {images.length >= searchParams.per_page && (
         <Button onClick={handleClickLoadMore} />
       )}
       {showModal && (

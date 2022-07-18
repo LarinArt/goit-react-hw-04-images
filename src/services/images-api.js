@@ -11,20 +11,22 @@ const customAxios = axios.create({
   },
 });
 
-export const searchParams = {
-  q: '',
-  page: 1,
-  image_type: 'photo',
-  orientation: 'horizontal',
-  safesearch: true,
-  per_page: 12,
-};
+// export const searchParams = {
+//   q: '',
+//   page: 1,
+//   image_type: 'photo',
+//   orientation: 'horizontal',
+//   safesearch: true,
+//   per_page: 12,
+// };
 
 export const getImages = async () => {
   try {
-    const { data } = await customAxios.get('', { params: searchParams });
+    const { data } = await customAxios.get('', {});
     return data;
   } catch (error) {
     toast.error(`${error}`);
   }
 };
+
+// params: searchParams;
