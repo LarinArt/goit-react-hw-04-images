@@ -37,7 +37,6 @@ export const App = () => {
     }
     (async () => {
       setStatus(Status.PENDING);
-
       try {
         const { totalHits, hits } = await API.getImages(searchParams);
         if (searchParams.page === 1) {
@@ -69,7 +68,7 @@ export const App = () => {
     });
   }, [images]);
 
-  function handleFormSearch(query) {
+  const handleFormSearch = query => {
     if (!query) {
       setImages([]);
       setStatus(Status.REJECTED);
@@ -79,7 +78,7 @@ export const App = () => {
     setSearchParams({ q: query, page: 1 });
     setTotalHits(0);
     setImages([]);
-  }
+  };
 
   const handleClickLoadMore = () => setSearchParams(page => page + 1);
 
