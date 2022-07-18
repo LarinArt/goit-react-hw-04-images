@@ -5,11 +5,10 @@ import { Header, Form, SearchbarButton, Input } from './Searchbar.style.js';
 
 export const Searchbar = ({ onSearch, totalHits }) => {
   const [query, setQuery] = useState('');
-
   const handleChange = e => setQuery(e.currentTarget.value.toLowerCase());
-
   const handleSubmit = e => {
     e.preventDefault();
+    setQuery(e.target.value);
     onSearch(query);
     setQuery('');
   };

@@ -7,14 +7,12 @@ import Button from './components/Button/Button';
 import Loader from './components/Loader/Loader';
 import Modal from './components/Modal/Modal';
 import * as API from './services/images-api';
-
 const Status = {
   IDLE: 'idle',
   PENDING: 'pending',
   RESOLVED: 'resolved',
   REJECTED: 'rejected',
 };
-
 export const App = () => {
   const [searchParams, setSearchParams] = useState({
     q: '',
@@ -76,7 +74,11 @@ export const App = () => {
     setImages([]);
   };
 
-  const handleClickLoadMore = () => setSearchParams(page => page + 1);
+  const handleClickLoadMore = () =>
+    setSearchParams(searchParams => ({
+      ...searchParams,
+      page: searchParams.page + 1,
+    }));
 
   const handleToggleModal = e => {
     setShowModal(prevState => !showModal);
@@ -84,6 +86,7 @@ export const App = () => {
       setImageData({ url: e.target.dataset.source, alt: e.target.alt });
     }
   };
+
   return (
     <>
       <Searchbar onSearch={handleFormSearch} totalHits={totalHits} />
@@ -92,9 +95,7 @@ export const App = () => {
       {images.length !== 0 && (
         <ImageGallery images={images} onClick={handleToggleModal} />
       )}
-      {images.length >= searchParams.per_page && (
-        <Button onClick={handleClickLoadMore} />
-      )}
+      {images.length >= 12 && <Button onClick={handleClickLoadMore} />}
       {showModal && (
         <Modal onClose={handleToggleModal}>
           <img src={imageData.url} alt={imageData.alt} />
